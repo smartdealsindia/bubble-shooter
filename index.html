@@ -1,513 +1,438 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Bubble Pop Shooter</title>
+<title>Bubble Shooter Adventure</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:12px;background:linear-gradient(145deg,#17113e,#302276,#101b40);
-font-family:Arial,sans-serif;color:white;text-align:center;min-height:100vh}
-.app{width:100%;max-width:500px;margin:auto}
-h1{margin:6px 0;color:#ffe66d;font-size:clamp(27px,7vw,38px);text-shadow:0 3px #ed4c9a}
-.sub{font-size:12px;color:#d9d5ff;margin-bottom:12px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
-.stat{background:#ffffff13;border:1px solid #ffffff30;border-radius:12px;padding:9px 3px}
-.stat small{display:block;color:#c9c5ff;font-size:10px;text-transform:uppercase}
-.stat b{font-size:21px;display:block;margin-top:4px}
-.game{position:relative;border:2px solid #a99bff;border-radius:17px;overflow:hidden;background:#10183b;touch-action:none}
-canvas{display:block;width:100%;height:auto;touch-action:none}
-.overlay{position:absolute;inset:0;background:#0b0d32df;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-.overlay.hide{display:none}
-.overlay h2{font-size:32px;color:#ffe66d;margin:0 0 12px}
-.overlay p{line-height:1.6;font-size:14px;color:#e5e1ff}
-button{border:0;border-radius:30px;padding:12px 17px;font-weight:bold;background:linear-gradient(135deg,#ffe66d,#ff91cb);color:#211047;cursor:pointer;touch-action:manipulation}
-button:active{transform:scale(.97)}
-.controls{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:12px}
-.controls button{font-size:12px}
-.tip{font-size:12px;color:#d4d0ff;line-height:1.6;margin-top:12px}
+body{margin:0;background:#080f35;color:#fff;font-family:Arial,sans-serif;text-align:center}
+button{border:0;cursor:pointer;font-weight:900;touch-action:manipulation}
+.app{width:100%;max-width:500px;margin:auto;padding:10px}
+h1{font-size:clamp(27px,7vw,39px);margin:7px 0;color:#ffe84d;text-shadow:0 3px #ff6c17,0 5px #132b91}
+.subtitle{font-size:12px;color:#c8d9ff;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:7px;margin-bottom:9px}
+.stat{border:1px solid #378cff;border-radius:13px;background:linear-gradient(135deg,#142a78,#07153d);padding:9px 3px;box-shadow:inset 0 0 10px #1679ff33}
+.stat small{font-size:10px;color:#8fe9ff;display:block;letter-spacing:1px}
+.stat b{display:block;font-size:21px;margin-top:4px}
+.game{position:relative;width:100%;border:3px solid #4c9dff;border-radius:17px;overflow:hidden;background:#081544;box-shadow:0 0 22px #286dff66;touch-action:none}
+canvas{width:100%;height:auto;display:block;touch-action:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:22px;background:linear-gradient(#06103bbf,#11115fee);z-index:2}
+.overlay.hidden{display:none}
+.logo{font-size:clamp(38px,10vw,54px);font-weight:1000;line-height:.98;color:#ffe72f;-webkit-text-stroke:1px #fff;text-shadow:0 4px #ff791d,0 8px #1239b4,0 12px #0008}
+.logo span{display:block;color:#fff;font-size:.85em;margin-top:8px;text-shadow:0 4px #167aff,0 7px #050c35}
+.bigbtn{font-size:23px;color:#fff;background:linear-gradient(#9aff43,#23b900 55%,#087600);border:4px solid #e4ffb6;border-radius:50px;padding:15px 40px;margin:20px 0;box-shadow:0 6px #075300,0 0 18px #71ff5b99}
+.bigbtn:active{transform:translateY(3px)}
+.minirow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.minirow button{color:#fff;border:2px solid #fff9;border-radius:17px;padding:14px 12px;min-width:85px;background:linear-gradient(#b95aff,#6411d7);box-shadow:0 4px #32117a}
+.minirow button:nth-child(2){background:linear-gradient(#42dcff,#075ad8)}
+.minirow button:nth-child(3){background:linear-gradient(#ffce48,#ff7117)}
+.overlay h2{font-size:32px;margin:0 0 8px;color:#ffe75c;text-shadow:0 3px #e9537d}
+.overlay p{font-size:14px;line-height:1.7;color:#e4edff;margin:10px 0}
+.controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.controls button{padding:11px 13px;border-radius:24px;color:white;background:linear-gradient(#267cff,#1236a7);border:1px solid #70bdff;font-size:12px}
+.tip{font-size:12px;line-height:1.6;color:#b7ccff;margin:12px 0}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
 <div class="app">
-  <h1>🫧 BUBBLE POP!</h1>
-  <div class="sub">Aim • Match 3 • Pop the bubbles!</div>
+  <h1>🫧 BUBBLE SHOOTER</h1>
+  <div class="subtitle">A colorful bubble popping adventure!</div>
 
   <div class="stats">
-    <div class="stat"><small>Score</small><b id="score">0</b></div>
-    <div class="stat"><small>Level</small><b id="level">1</b></div>
-    <div class="stat"><small>Shots left</small><b id="shots">35</b></div>
+    <div class="stat"><small>⭐ SCORE</small><b id="score">0</b></div>
+    <div class="stat"><small>LEVEL</small><b id="level">1</b></div>
+    <div class="stat"><small>SHOTS</small><b id="shots">30</b></div>
   </div>
 
   <div class="game">
-    <canvas id="canvas" width="480" height="660"></canvas>
-    <div class="overlay" id="overlay">
-      <h2 id="title">Bubble Pop!</h2>
-      <p id="message">Match 3 or more bubbles of the same color.<br>Clear all bubbles to win!</p>
-      <button id="start">▶ START GAME</button>
+    <canvas id="game" width="440" height="650"></canvas>
+
+    <div class="overlay" id="menu">
+      <div style="font-size:62px;letter-spacing:-12px;margin-bottom:18px">🔴🔵🟢</div>
+      <div class="logo">BUBBLE<span>SHOOTER</span></div>
+      <p>Match 3 or more bubbles<br>of the same color!</p>
+      <button class="bigbtn" id="play">▶ PLAY</button>
+      <div class="minirow">
+        <button id="levelBtn">📈<br>LEVELS</button>
+        <button id="soundMenu">🔊<br>SOUND ON</button>
+        <button id="bestBtn">🏆<br>BEST</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="result">
+      <div id="resultIcon" style="font-size:65px">🏆</div>
+      <h2 id="resultTitle">LEVEL COMPLETE!</h2>
+      <p id="resultText">Great job!</p>
+      <button class="bigbtn" id="resultBtn">▶ NEXT LEVEL</button>
+      <button class="controls" id="homeBtn" style="margin-top:0;padding:12px 22px">🏠 HOME</button>
+    </div>
+
+    <div class="overlay hidden" id="pauseScreen">
+      <h2>⏸ PAUSED</h2>
+      <p>Ready to continue?</p>
+      <button class="bigbtn" id="resume">▶ RESUME</button>
     </div>
   </div>
 
   <div class="controls">
-    <button id="sound">🔊 Sound ON</button>
-    <button id="pause">⏸ Pause</button>
-    <button id="restart">↻ Restart</button>
+    <button id="pauseBtn">⏸ PAUSE</button>
+    <button id="soundBtn">🔊 SOUND ON</button>
+    <button id="restartBtn">↻ RESTART</button>
   </div>
-  <div class="tip">📱 Touch and release to shoot<br>🖱️ Move mouse to aim and click to shoot</div>
+  <div class="tip">📱 Touch and release to shoot · 🖱️ Move and click on PC<br>Match 3+ bubbles · Clear the board · Advance through levels</div>
 </div>
 
 <script>
-(() => {
+(()=>{
 "use strict";
-
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const W = 480, H = 660;
-const R = 16;
-const DX = 34;
-const DY = 29.45;
-const LEFT = 18;
-const TOP = 39;
-const COLS = 13;
-const ROWS = 18;
-const COLORS = ["#ff4c88","#38d9ff","#ffe34f","#9b70ff","#54ed9b","#ff984c"];
-
-const $ = id => document.getElementById(id);
-let grid, score, level, shots, shotCount;
-let currentColor, nextColor, projectile;
-let running = false, paused = false, ended = false;
-let soundOn = true, audio = null;
-let aimX = W/2, aimY = 230;
-let pointerDown = false;
-let particles = [], texts = [];
-let animationTime = 0;
-
-const shooter = {x:W/2,y:603};
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const W=440,H=650,R=15.5,COLS=12,ROWS=19;
+const DX=33.5,DY=28.8,LEFT=19,TOP=39;
+const COLORS=["#ff397c","#18c9ff","#7bff36","#ffd52d","#a44bff","#ff862b"];
+const $=id=>document.getElementById(id);
+let grid=[],score=0,level=1,shots=30,best=0;
+let current,next,projectile=null,particles=[],texts=[];
+let running=false,paused=false,ended=false,sound=true;
+let aimX=W/2,aimY=240,last=0,pointerDown=false,audio=null;
+try{best=Number(localStorage.getItem("bubbleBest")||0)}catch(e){}
 
 function randColor(){
-  const available = Math.min(COLORS.length,3+Math.floor((level-1)/2));
-  return COLORS[Math.floor(Math.random()*available)];
+ return COLORS[Math.floor(Math.random()*Math.min(COLORS.length,3+Math.floor((level-1)/2)))];
 }
-function cx(c,r){return LEFT+R+c*DX+(r%2?DX/2:0);}
-function cy(r){return TOP+R+r*DY;}
-function inside(r,c){return r>=0&&r<ROWS&&c>=0&&c<COLS;}
-function bubble(r,c){return inside(r,c)?grid[r][c]:null;}
-
+function xCell(c,r){return LEFT+R+c*DX+(r%2?DX/2:0)}
+function yCell(r){return TOP+R+r*DY}
+function inside(r,c){return r>=0&&r<ROWS&&c>=0&&c<COLS}
+function get(r,c){return inside(r,c)?grid[r][c]:null}
 function neighbors(r,c){
-  const d = r%2===0 ? -1 : 0;
-  return [
-    [r,c-1],[r,c+1],
-    [r-1,c+d],[r-1,c+d+1],
-    [r+1,c+d],[r+1,c+d+1]
-  ].filter(([rr,cc])=>inside(rr,cc));
+ const shift=r%2?0:-1;
+ return [[r,c-1],[r,c+1],[r-1,c+shift],[r-1,c+shift+1],
+ [r+1,c+shift],[r+1,c+shift+1]].filter(([a,b])=>inside(a,b));
 }
-
-function play(type="pop"){
-  if(!soundOn)return;
-  try{
-    audio=audio||new (window.AudioContext||window.webkitAudioContext)();
-    if(audio.state==="suspended")audio.resume();
-    const presets={
-      pop:[550,850,.09],shoot:[280,420,.07],wall:[350,250,.04],
-      drop:[220,100,.15],win:[500,950,.25],lose:[260,80,.3]
-    };
-    const [a,b,duration]=presets[type]||presets.pop;
-    const osc=audio.createOscillator(),gain=audio.createGain();
-    osc.connect(gain);gain.connect(audio.destination);
-    osc.frequency.setValueAtTime(a,audio.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(b,audio.currentTime+duration);
-    gain.gain.setValueAtTime(.10,audio.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
-    osc.start();osc.stop(audio.currentTime+duration);
-  }catch(e){}
-}
-
-function makeGrid(){
-  grid=Array.from({length:ROWS},()=>Array(COLS).fill(null));
-  const rows=Math.min(5+level,9);
-  for(let r=0;r<rows;r++){
-    for(let c=0;c<COLS;c++){
-      if(r<rows-1||Math.random()>.12)grid[r][c]=randColor();
-    }
-  }
-}
-
-function reset(){
-  score=0;level=1;shots=35;shotCount=0;
-  particles=[];texts=[];projectile=null;
-  running=true;paused=false;ended=false;
-  currentColor=randColor();nextColor=randColor();
-  aimX=W/2;aimY=230;
-  makeGrid();
-  $("overlay").classList.add("hide");
-  $("pause").textContent="⏸ Pause";
-  updateStats();
+function beep(type="pop"){
+ if(!sound)return;
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==="suspended")audio.resume();
+  let data={pop:[520,850,.10],shoot:[250,400,.07],drop:[210,100,.18],win:[500,950,.28],lose:[260,75,.3],wall:[300,220,.04]}[type]||[400,600,.08];
+  let o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;
+  o.connect(g);g.connect(audio.destination);
+  o.frequency.setValueAtTime(data[0],t);
+  o.frequency.exponentialRampToValueAtTime(data[1],t+data[2]);
+  g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+data[2]);
+  o.start(t);o.stop(t+data[2]+.02);
+ }catch(e){}
 }
 function updateStats(){
-  $("score").textContent=score.toLocaleString();
-  $("level").textContent=level;
-  $("shots").textContent=shots;
+ $("score").textContent=score.toLocaleString();
+ $("level").textContent=level;
+ $("shots").textContent=shots;
 }
-function showOverlay(title,message,buttonText,action){
-  $("title").textContent=title;
-  $("message").innerHTML=message;
-  $("start").textContent=buttonText;
-  $("start").onclick=action;
-  $("overlay").classList.remove("hide");
+function makeGrid(){
+ grid=Array.from({length:ROWS},()=>Array(COLS).fill(null));
+ const rows=Math.min(5+level,9);
+ for(let r=0;r<rows;r++)for(let c=0;c<COLS;c++){
+  if(r<rows-1||Math.random()>.15)grid[r][c]=randColor();
+ }
 }
-function startNextLevel(){
-  level++;
-  shots=35+Math.min(15,(level-1)*2);
-  shotCount=0;projectile=null;particles=[];texts=[];
-  currentColor=randColor();nextColor=randColor();
-  makeGrid();
-  running=true;paused=false;ended=false;
-  $("overlay").classList.add("hide");
-  $("pause").textContent="⏸ Pause";
-  updateStats();
+function startGame(){
+ score=0;level=1;shots=30;particles=[];texts=[];projectile=null;
+ current=randColor();next=randColor();makeGrid();
+ running=true;paused=false;ended=false;aimX=W/2;aimY=240;
+ $("menu").classList.add("hidden");$("result").classList.add("hidden");
+ $("pauseScreen").classList.add("hidden");
+ $("pauseBtn").textContent="⏸ PAUSE";updateStats();beep("shoot");
 }
-
-function popParticles(x,y,color,n=9){
-  for(let i=0;i<n;i++){
-    const a=Math.random()*Math.PI*2,v=35+Math.random()*130;
-    particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,
-      life:.45+Math.random()*.35,color,size:2+Math.random()*3});
-  }
+function nextLevel(){
+ level++;shots=30+Math.min(15,(level-1)*2);
+ current=randColor();next=randColor();projectile=null;
+ particles=[];texts=[];makeGrid();
+ running=true;paused=false;ended=false;
+ $("result").classList.add("hidden");$("pauseScreen").classList.add("hidden");
+ $("pauseBtn").textContent="⏸ PAUSE";updateStats();
 }
-function addText(x,y,text,color="#fff"){
-  texts.push({x,y,text,color,life:1});
+function showResult(win){
+ running=false;ended=true;projectile=null;
+ if(score>best){best=score;try{localStorage.setItem("bubbleBest",best)}catch(e){}}
+ beep(win?"win":"lose");
+ $("resultIcon").textContent=win?"🏆":"💥";
+ $("resultTitle").textContent=win?"LEVEL COMPLETE!":"GAME OVER";
+ $("resultText").innerHTML=(win?"You cleared the bubbles!":"No shots left or bubbles too low!")+
+  "<br>Score: <b>"+score.toLocaleString()+"</b><br>Best: <b>"+best.toLocaleString()+"</b>";
+ $("resultBtn").textContent=win?"▶ NEXT LEVEL":"↻ PLAY AGAIN";
+ $("resultBtn").onclick=win?nextLevel:startGame;
+ $("result").classList.remove("hidden");
 }
+function countBubbles(){let n=0;for(let row of grid)for(let b of row)if(b)n++;return n}
 function groupAt(sr,sc,color){
-  const todo=[[sr,sc]],seen=new Set(),group=[];
-  while(todo.length){
-    const [r,c]=todo.pop(),key=r+","+c;
-    if(seen.has(key))continue;
-    seen.add(key);
-    if(bubble(r,c)!==color)continue;
-    group.push([r,c]);
-    neighbors(r,c).forEach(n=>todo.push(n));
-  }
-  return group;
+ let stack=[[sr,sc]],seen=new Set(),out=[];
+ while(stack.length){
+  let [r,c]=stack.pop(),k=r+","+c;
+  if(seen.has(k)||get(r,c)!==color)continue;
+  seen.add(k);out.push([r,c]);
+  neighbors(r,c).forEach(n=>stack.push(n));
+ }
+ return out;
 }
-function dropUnconnected(){
-  const seen=new Set(),todo=[];
-  for(let c=0;c<COLS;c++)if(bubble(0,c))todo.push([0,c]);
-  while(todo.length){
-    const [r,c]=todo.pop(),key=r+","+c;
-    if(seen.has(key)||!bubble(r,c))continue;
-    seen.add(key);
-    neighbors(r,c).forEach(n=>todo.push(n));
-  }
-  let count=0;
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
-      if(grid[r][c]&&!seen.has(r+","+c)){
-        popParticles(cx(c,r),cy(r),grid[r][c],5);
-        grid[r][c]=null;count++;
-      }
-    }
-  }
-  if(count){
-    score+=count*20;
-    addText(W/2,H*.50,"+"+count*20+" DROP BONUS","#58f3ff");
-    play("drop");
-  }
+function addParticles(x,y,color,n=8){
+ for(let i=0;i<n;i++){
+  let a=Math.random()*Math.PI*2,v=40+Math.random()*120;
+  particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,
+   color,life:.4+Math.random()*.4,size:2+Math.random()*3});
+ }
 }
-
-function attach(x,y,color,hitRow=-1,hitCol=-1){
-  let candidates=[];
-  if(hitRow>=0){
-    for(const [r,c] of neighbors(hitRow,hitCol)){
-      if(!bubble(r,c)){
-        const dx=cx(c,r)-x,dy=cy(r)-y;
-        candidates.push({r,c,d:dx*dx+dy*dy});
-      }
-    }
+function floatingDrops(){
+ let stack=[],seen=new Set();
+ for(let c=0;c<COLS;c++)if(get(0,c))stack.push([0,c]);
+ while(stack.length){
+  let [r,c]=stack.pop(),k=r+","+c;
+  if(seen.has(k)||!get(r,c))continue;
+  seen.add(k);neighbors(r,c).forEach(n=>stack.push(n));
+ }
+ let drops=0;
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  if(grid[r][c]&&!seen.has(r+","+c)){
+   addParticles(xCell(c,r),yCell(r),grid[r][c],5);
+   grid[r][c]=null;drops++;
   }
-  if(y<=cy(0)+R){
-    for(let c=0;c<COLS;c++){
-      if(!bubble(0,c)){
-        const dx=cx(c,0)-x;
-        candidates.push({r:0,c,d:dx*dx});
-      }
-    }
-  }
-  // If a collision had no nearby empty slot, search the closest available cell.
-  if(!candidates.length){
-    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-      if(!bubble(r,c)){
-        const dx=cx(c,r)-x,dy=cy(r)-y;
-        candidates.push({r,c,d:dx*dx+dy*dy});
-      }
-    }
-  }
-  if(!candidates.length){finish(false);return;}
-  candidates.sort((a,b)=>a.d-b.d);
-  const {r,c}=candidates[0];
-  grid[r][c]=color;
-
-  const group=groupAt(r,c,color);
-  if(group.length>=3){
-    group.forEach(([rr,cc])=>{
-      popParticles(cx(cc,rr),cy(rr),grid[rr][cc]);
-      grid[rr][cc]=null;
-    });
-    const points=group.length*10;
-    score+=points;
-    addText(W/2,H*.44,"+"+points,"#ffe66d");
-    play("pop");
-    dropUnconnected();
-  }else{
-    shotCount++;
-    if(shotCount>=6){
-      shotCount=0;
-      addNewRow();
-      if(ended)return;
-    }
-  }
-
-  currentColor=nextColor;
-  nextColor=randColor();
-
-  updateStats();
-  if(countBubbles()===0){
-    running=false;ended=true;play("win");
-    showOverlay("🏆 Level Complete!","Fantastic! Your score is <b>"+score+"</b>.","NEXT LEVEL ▶",startNextLevel);
-    return;
-  }
-  if(shots<=0||reachedBottom())finish(false);
+ }
+ if(drops){score+=drops*20;texts.push({x:W/2,y:340,text:"DROP BONUS +"+drops*20,color:"#5cf5ff",life:1});beep("drop")}
 }
-function countBubbles(){
-  let n=0;for(const row of grid)for(const b of row)if(b)n++;
-  return n;
+function attach(x,y,color,hit=null){
+ let candidates=[];
+ if(hit){
+  for(let [r,c] of neighbors(hit.r,hit.c))if(!get(r,c)){
+   let dx=xCell(c,r)-x,dy=yCell(r)-y;
+   candidates.push({r,c,d:dx*dx+dy*dy});
+  }
+ }
+ if(y<yCell(0)+R*1.5){
+  for(let c=0;c<COLS;c++)if(!get(0,c)){
+   let dx=xCell(c,0)-x;candidates.push({r:0,c,d:dx*dx});
+  }
+ }
+ if(!candidates.length){
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(!get(r,c)){
+   let dx=xCell(c,r)-x,dy=yCell(r)-y;
+   candidates.push({r,c,d:dx*dx+dy*dy});
+  }
+ }
+ if(!candidates.length){showResult(false);return}
+ candidates.sort((a,b)=>a.d-b.d);
+ let {r,c}=candidates[0];grid[r][c]=color;
+ let group=groupAt(r,c,color);
+ if(group.length>=3){
+  for(let [rr,cc] of group){
+   addParticles(xCell(cc,rr),yCell(rr),grid[rr][cc]);
+   grid[rr][cc]=null;
+  }
+  score+=group.length*10;
+  texts.push({x:W/2,y:300,text:"+"+group.length*10,color:"#ffe66d",life:1});
+  beep("pop");floatingDrops();
+ }
+ current=next;next=randColor();
+ updateStats();
+ if(countBubbles()===0){showResult(true);return}
+ if(shots<=0||reachedBottom()){showResult(false);return}
 }
 function reachedBottom(){
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    if(bubble(r,c)&&cy(r)+R>=shooter.y-35)return true;
-  }
-  return false;
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  if(get(r,c)&&yCell(r)+R>shooter.y-35)return true;
+ }
+ return false;
 }
-function addNewRow(){
-  if(grid[ROWS-1].some(Boolean)){
-    finish(false);return;
-  }
-  for(let r=ROWS-1;r>0;r--)grid[r]=grid[r-1].slice();
-  grid[0]=Array(COLS).fill(null);
-  for(let c=0;c<COLS;c++)grid[0][c]=Math.random()<.88?randColor():null;
-  addText(W/2,TOP+20,"NEW ROW!","#ff8dc8");
-}
-function finish(won){
-  if(ended)return;
-  running=false;ended=true;projectile=null;
-  play(won?"win":"lose");
-  showOverlay(won?"🏆 You Win!":"💥 Game Over",
-    won?"You cleared the board!<br>Score: <b>"+score+"</b>":
-    "No more shots or bubbles got too low.<br>Final score: <b>"+score+"</b>",
-    "↻ PLAY AGAIN",reset);
-}
-
+const shooter={x:W/2,y:602};
 function shoot(){
-  if(!running||paused||ended||projectile)return;
-  let angle=Math.atan2(aimY-shooter.y,aimX-shooter.x);
-  angle=Math.max(-Math.PI+.15,Math.min(-.15,angle));
-  const speed=650;
-  projectile={x:shooter.x,y:shooter.y-18,
-    vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,color:currentColor};
-  shots--;
-  updateStats();play("shoot");
+ if(!running||paused||ended||projectile)return;
+ let a=Math.atan2(aimY-shooter.y,aimX-shooter.x);
+ a=Math.max(-Math.PI+.16,Math.min(-.16,a));
+ projectile={x:shooter.x,y:shooter.y-18,vx:Math.cos(a)*620,
+  vy:Math.sin(a)*620,color:current};
+ shots--;updateStats();beep("shoot");
 }
-
 function update(dt){
-  if(!running||paused||ended)return;
-
-  if(projectile){
-    const p=projectile;
-    p.x+=p.vx*dt;p.y+=p.vy*dt;
-    if(p.x<=R){p.x=R;p.vx=Math.abs(p.vx);play("wall");}
-    if(p.x>=W-R){p.x=W-R;p.vx=-Math.abs(p.vx);play("wall");}
-
-    let hit=null;
-    if(p.y<=cy(0)){
-      attach(p.x,p.y,p.color);
-      projectile=null;
-    }else{
-      outer:
-      for(let r=0;r<ROWS;r++){
-        for(let c=0;c<COLS;c++){
-          if(!bubble(r,c))continue;
-          const dx=p.x-cx(c,r),dy=p.y-cy(r);
-          if(dx*dx+dy*dy<=(R*2-1)*(R*2-1)){
-            hit={r,c};break outer;
-          }
-        }
-      }
-      if(hit){
-        attach(p.x,p.y,p.color,hit.r,hit.c);
-        projectile=null;
-      }
-    }
+ if(!running||paused||ended)return;
+ if(projectile){
+  let p=projectile;p.x+=p.vx*dt;p.y+=p.vy*dt;
+  if(p.x<R){p.x=R;p.vx=Math.abs(p.vx);beep("wall")}
+  if(p.x>W-R){p.x=W-R;p.vx=-Math.abs(p.vx);beep("wall")}
+  let hit=null;
+  if(p.y<=yCell(0)){
+   attach(p.x,p.y,p.color);projectile=null;
+  }else{
+   outer:for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(!get(r,c))continue;
+    let dx=p.x-xCell(c,r),dy=p.y-yCell(r);
+    if(dx*dx+dy*dy<(R*2-1)**2){hit={r,c};break outer}
+   }
+   if(hit){attach(p.x,p.y,p.color,hit);projectile=null}
   }
-
-  for(const p of particles){
-    p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=100*dt;p.life-=dt;
-  }
-  particles=particles.filter(p=>p.life>0);
-  for(const t of texts){t.y-=25*dt;t.life-=dt;}
-  texts=texts.filter(t=>t.life>0);
+ }
+ particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=90*dt;p.life-=dt});
+ particles=particles.filter(p=>p.life>0);
+ texts.forEach(t=>{t.y-=24*dt;t.life-=dt});texts=texts.filter(t=>t.life>0);
 }
-
 function bubbleDraw(x,y,color,r=R){
-  const g=ctx.createRadialGradient(x-r*.35,y-r*.4,1,x,y,r*1.25);
-  g.addColorStop(0,"#ffffff");
-  g.addColorStop(.17,color);
-  g.addColorStop(1,darken(color));
-  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fillStyle=g;ctx.fill();
-  ctx.strokeStyle="#ffffff77";ctx.lineWidth=1.3;ctx.stroke();
-  ctx.beginPath();ctx.ellipse(x-r*.28,y-r*.34,r*.25,r*.13,-.5,0,Math.PI*2);
-  ctx.fillStyle="#ffffffaa";ctx.fill();
+ let g=ctx.createRadialGradient(x-r*.35,y-r*.4,1,x,y,r*1.3);
+ g.addColorStop(0,"#fff");g.addColorStop(.17,color);g.addColorStop(1,shade(color));
+ ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+ ctx.lineWidth=1.3;ctx.strokeStyle="#ffffff99";ctx.stroke();
+ ctx.beginPath();ctx.ellipse(x-r*.27,y-r*.33,r*.25,r*.13,-.5,0,Math.PI*2);
+ ctx.fillStyle="#ffffffbb";ctx.fill();
 }
-function darken(hex){
-  const n=parseInt(hex.slice(1),16);
-  const r=Math.max(0,(n>>16)-45),g=Math.max(0,((n>>8)&255)-45),b=Math.max(0,(n&255)-45);
-  return "#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("");
+function shade(hex){
+ let n=parseInt(hex.slice(1),16),a=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,v-50));
+ return "#"+a.map(v=>v.toString(16).padStart(2,"0")).join("");
+}
+function rounded(x,y,w,h,r,color){
+ ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(x+r,y);
+ ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+ ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.fill();
 }
 function draw(){
-  const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,"#172451");bg.addColorStop(1,"#10142d");
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ let bg=ctx.createLinearGradient(0,0,0,H);
+ bg.addColorStop(0,"#09256b");bg.addColorStop(.55,"#112d78");bg.addColorStop(1,"#100d43");
+ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ for(let i=0;i<55;i++){
+  ctx.globalAlpha=.2+(i%4)*.12;ctx.fillStyle="#fff";
+  ctx.beginPath();ctx.arc((i*79+23)%W,(i*131+12)%H,i%5===0?2:1,0,Math.PI*2);ctx.fill()
+ }
+ ctx.globalAlpha=1;
+ // Fantasy mountain scenery
+ ctx.fillStyle="#171c72";
+ ctx.beginPath();ctx.moveTo(0,460);ctx.lineTo(45,400);ctx.lineTo(77,460);ctx.lineTo(115,425);
+ ctx.lineTo(153,480);ctx.lineTo(205,420);ctx.lineTo(250,475);ctx.lineTo(300,405);
+ ctx.lineTo(350,460);ctx.lineTo(397,405);ctx.lineTo(440,465);ctx.lineTo(440,H);ctx.lineTo(0,H);ctx.fill();
+ ctx.fillStyle="#22288c";
+ ctx.beginPath();ctx.moveTo(0,535);ctx.lineTo(80,470);ctx.lineTo(135,560);ctx.lineTo(220,490);
+ ctx.lineTo(290,565);ctx.lineTo(360,475);ctx.lineTo(440,535);ctx.lineTo(440,H);ctx.lineTo(0,H);ctx.fill();
 
-  for(let i=0;i<50;i++){
-    ctx.globalAlpha=.15+(i%3)*.1;ctx.fillStyle="#fff";
-    ctx.beginPath();ctx.arc((i*89+17)%W,(i*131+21)%H,i%4===0?2:1,0,Math.PI*2);ctx.fill();
-  }
-  ctx.globalAlpha=1;
+ // Top glow and bubble rows
+ ctx.fillStyle="#ffffff14";ctx.fillRect(0,0,W,TOP-4);
+ ctx.setLineDash([5,7]);ctx.strokeStyle="#8bd9ff55";
+ ctx.beginPath();ctx.moveTo(0,TOP-4);ctx.lineTo(W,TOP-4);ctx.stroke();ctx.setLineDash([]);
+ for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(get(r,c))bubbleDraw(xCell(c,r),yCell(r),get(r,c));
 
-  ctx.setLineDash([5,7]);ctx.strokeStyle="#ffffff25";
-  ctx.beginPath();ctx.moveTo(0,TOP-5);ctx.lineTo(W,TOP-5);ctx.stroke();ctx.setLineDash([]);
-
-  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    if(bubble(r,c))bubbleDraw(cx(c,r),cy(r),bubble(r,c));
-  }
-
-  // Dotted aiming guide
-  if(running&&!paused&&!projectile&&!ended){
-    let a=Math.atan2(aimY-shooter.y,aimX-shooter.x);
-    a=Math.max(-Math.PI+.15,Math.min(-.15,a));
-    let x=shooter.x,y=shooter.y-18,vx=Math.cos(a),vy=Math.sin(a);
-    ctx.fillStyle="#ffffff88";
-    for(let i=0;i<28;i++){
-      x+=vx*11;y+=vy*11;
-      if(x<R){x=R;vx=Math.abs(vx);}
-      if(x>W-R){x=W-R;vx=-Math.abs(vx);}
-      if(y<TOP+R)break;
-      ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();
-    }
-  }
-
-  // Launcher
-  ctx.save();
-  ctx.translate(shooter.x,shooter.y);
+ // Aim dots
+ if(running&&!paused&&!ended&&!projectile){
   let a=Math.atan2(aimY-shooter.y,aimX-shooter.x);
-  a=Math.max(-Math.PI+.15,Math.min(-.15,a));
-  ctx.rotate(a);
-  ctx.fillStyle="#9c91ff";
-  ctx.beginPath();ctx.roundRect(-2,-10,40,20,9);ctx.fill();
-  ctx.fillStyle="#e5e0ff";
-  ctx.beginPath();ctx.roundRect(7,-5,29,10,5);ctx.fill();
-  ctx.restore();
-  bubbleDraw(shooter.x,shooter.y,currentColor,R+1);
-
-  ctx.textAlign="center";ctx.font="bold 11px Arial";ctx.fillStyle="#ffffffbb";
-  ctx.fillText("NEXT",W-47,H-78);
-  bubbleDraw(W-47,H-48,nextColor,12);
-
-  if(projectile)bubbleDraw(projectile.x,projectile.y,projectile.color);
-  for(const p of particles){
-    ctx.globalAlpha=Math.max(0,Math.min(1,p.life*2));
-    ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();
+  a=Math.max(-Math.PI+.16,Math.min(-.16,a));
+  let x=shooter.x,y=shooter.y-15,vx=Math.cos(a),vy=Math.sin(a);
+  ctx.fillStyle="#73edff";
+  for(let i=0;i<30;i++){
+   x+=vx*10;y+=vy*10;
+   if(x<R){x=R;vx=Math.abs(vx)}
+   if(x>W-R){x=W-R;vx=-Math.abs(vx)}
+   if(y<TOP+R)break;
+   ctx.globalAlpha=1-i/35;ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();
   }
   ctx.globalAlpha=1;
-  for(const t of texts){
-    ctx.globalAlpha=Math.max(0,t.life);ctx.fillStyle=t.color;
-    ctx.font="900 20px Arial";ctx.textAlign="center";ctx.fillText(t.text,t.x,t.y);
-  }
-  ctx.globalAlpha=1;
-
-  if(paused){
-    ctx.fillStyle="#070a28cc";ctx.fillRect(0,0,W,H);
-    ctx.fillStyle="#ffe66d";ctx.font="900 38px Arial";ctx.textAlign="center";
-    ctx.fillText("PAUSED",W/2,H/2);
-  }
+ }
+ // Launcher
+ let angle=Math.atan2(aimY-shooter.y,aimX-shooter.x);
+ angle=Math.max(-Math.PI+.16,Math.min(-.16,angle));
+ ctx.save();ctx.translate(shooter.x,shooter.y);ctx.rotate(angle);
+ rounded(-2,-12,43,24,9,"#79caff");
+ rounded(7,-7,31,14,6,"#e6f7ff");
+ ctx.restore();
+ bubbleDraw(shooter.x,shooter.y,current||COLORS[0],R+3);
+ // Next bubble card
+ rounded(W-65,H-91,55,73,15,"#102b7b");
+ ctx.strokeStyle="#65caff";ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle="#fff";ctx.font="bold 10px Arial";ctx.textAlign="center";ctx.fillText("NEXT",W-37,H-75);
+ bubbleDraw(W-37,H-48,next||COLORS[1],12);
+ if(projectile)bubbleDraw(projectile.x,projectile.y,projectile.color);
+ particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill()});
+ ctx.globalAlpha=1;
+ texts.forEach(t=>{ctx.globalAlpha=Math.max(0,t.life);ctx.fillStyle=t.color;ctx.font="900 19px Arial";ctx.textAlign="center";ctx.fillText(t.text,t.x,t.y)});
+ ctx.globalAlpha=1;
+ if(paused){
+  ctx.fillStyle="#070b35c9";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#ffe84d";ctx.font="900 35px Arial";ctx.textAlign="center";ctx.fillText("PAUSED",W/2,H/2);
+ }
 }
-
 function frame(t){
-  const dt=Math.min((t-animationTime)/1000||0,.03);
-  animationTime=t;
-  update(dt);draw();
-  requestAnimationFrame(frame);
+ let dt=Math.min((t-last)/1000||0,.03);last=t;
+ update(dt);draw();requestAnimationFrame(frame);
 }
-
-function position(e){
-  const rect=canvas.getBoundingClientRect();
-  return {x:(e.clientX-rect.left)*W/rect.width,
-          y:(e.clientY-rect.top)*H/rect.height};
+function pos(e){
+ let r=canvas.getBoundingClientRect();
+ return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};
 }
 canvas.addEventListener("pointerdown",e=>{
-  e.preventDefault();
-  if(!running||paused||ended)return;
-  pointerDown=true;
-  try{canvas.setPointerCapture(e.pointerId);}catch(err){}
-  const p=position(e);aimX=p.x;aimY=Math.min(p.y,shooter.y-30);
+ e.preventDefault();if(!running||paused||ended)return;
+ pointerDown=true;try{canvas.setPointerCapture(e.pointerId)}catch(err){}
+ let p=pos(e);aimX=p.x;aimY=Math.min(p.y,shooter.y-30);
 });
 canvas.addEventListener("pointermove",e=>{
-  if(e.pointerType!=="mouse"&&!pointerDown)return;
-  if(!running||paused)return;
-  const p=position(e);aimX=p.x;aimY=Math.min(p.y,shooter.y-30);
+ if(e.pointerType!=="mouse"&&!pointerDown)return;
+ if(!running||paused)return;
+ let p=pos(e);aimX=p.x;aimY=Math.min(p.y,shooter.y-30);
 });
 canvas.addEventListener("pointerup",e=>{
-  if(!pointerDown)return;
-  pointerDown=false;
-  if(!running||paused||ended)return;
-  const p=position(e);aimX=p.x;aimY=Math.min(p.y,shooter.y-30);
-  shoot();
+ if(!pointerDown)return;pointerDown=false;
+ if(!running||paused||ended)return;
+ let p=pos(e);aimX=p.x;aimY=Math.min(p.y,shooter.y-30);shoot();
 });
 canvas.addEventListener("pointercancel",()=>pointerDown=false);
 canvas.addEventListener("contextmenu",e=>e.preventDefault());
 
-$("start").onclick=reset;
-$("restart").onclick=reset;
-$("sound").onclick=()=>{
-  soundOn=!soundOn;
-  $("sound").textContent=soundOn?"🔊 Sound ON":"🔇 Sound OFF";
-  if(soundOn)play("pop");
+$("play").onclick=startGame;
+$("restartBtn").onclick=startGame;
+$("homeBtn").onclick=()=>{
+ running=false;paused=false;ended=false;projectile=null;
+ $("result").classList.add("hidden");$("pauseScreen").classList.add("hidden");
+ $("menu").classList.remove("hidden");
 };
-$("pause").onclick=()=>{
-  if(!running||ended)return;
-  paused=!paused;
-  $("pause").textContent=paused?"▶ Resume":"⏸ Pause";
+$("levelBtn").onclick=()=>{
+ $("menu").classList.add("hidden");
+ showInfo("LEVEL "+level,"Start playing to clear the bubbles and unlock the next level.","▶ PLAY",startGame);
 };
-
-// Keyboard controls
+$("bestBtn").onclick=()=>{
+ $("menu").classList.add("hidden");
+ showInfo("🏆 HIGH SCORE","Your best score is <b>"+best.toLocaleString()+"</b>.","▶ PLAY",startGame);
+};
+function showInfo(title,message,button,action){
+ $("resultTitle").textContent=title;$("resultText").innerHTML=message;
+ $("resultIcon").textContent="🫧";$("resultBtn").textContent=button;$("resultBtn").onclick=action;
+ $("result").classList.remove("hidden");
+}
+function toggleSound(){
+ sound=!sound;
+ $("soundBtn").textContent=sound?"🔊 SOUND ON":"🔇 SOUND OFF";
+ $("soundMenu").innerHTML=sound?"🔊<br>SOUND ON":"🔇<br>SOUND OFF";
+ if(sound)beep("pop");
+}
+$("soundBtn").onclick=toggleSound;
+$("soundMenu").onclick=toggleSound;
+$("pauseBtn").onclick=()=>{
+ if(!running||ended)return;
+ paused=!paused;
+ $("pauseBtn").textContent=paused?"▶ RESUME":"⏸ PAUSE";
+ $("pauseScreen").classList.toggle("hidden",!paused);
+};
+$("resume").onclick=()=>{
+ paused=false;$("pauseScreen").classList.add("hidden");$("pauseBtn").textContent="⏸ PAUSE";
+};
 window.addEventListener("keydown",e=>{
-  if(e.code==="ArrowLeft")aimX=Math.max(R,aimX-20);
-  if(e.code==="ArrowRight")aimX=Math.min(W-R,aimX+20);
-  if(e.code==="Space"){
-    e.preventDefault();shoot();
-  }
-  if(e.code==="Escape"&&running){
-    paused=!paused;
-    $("pause").textContent=paused?"▶ Resume":"⏸ Pause";
-  }
+ if(e.code==="Space"){e.preventDefault();shoot()}
+ if(e.code==="ArrowLeft")aimX=Math.max(R,aimX-18);
+ if(e.code==="ArrowRight")aimX=Math.min(W-R,aimX+18);
+ if(e.code==="Escape"&&running){
+  paused=!paused;$("pauseScreen").classList.toggle("hidden",!paused);
+  $("pauseBtn").textContent=paused?"▶ RESUME":"⏸ PAUSE";
+ }
 });
 
-makeGrid();
-currentColor=randColor();nextColor=randColor();
-score=0;level=1;shots=35;
-updateStats();
+// Start on the illustrated home screen.
+makeGrid();current=randColor();next=randColor();updateStats();draw();
 requestAnimationFrame(frame);
 })();
 </script>
 </body>
 </html>
-
